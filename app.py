@@ -30,6 +30,11 @@ def pr_opened_event(repo, payload):
                    f"The repository maintainers will look into it ASAP! :speech_balloon:"
         pr.create_comment(f"{response}")
         pr.add_to_labels("needs review")
+    
+def delete_branch(repo, payload):
+    branch_name = payload['pull_request']['head']['ref']
+    branch = repo.get_git_ref("heads/%s" % branch_name)
+    branch.delete()
 
 def pr_closed_event(repo, payload):
     pr = repo.get_issue(number=payload['pull_request']['number'])
@@ -43,6 +48,8 @@ def pr_closed_event(repo, payload):
         response = f"Thanks for merge this pull request, @{merged_by}! " \
                    f"@{author} ur issue is closed! :tada:"
         pr.create_comment(f"{response}")
+    delete_branch(repo, payload)
+    
 
 @app.route("/", methods=['POST'])
 def bot():
