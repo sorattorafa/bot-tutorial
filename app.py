@@ -48,7 +48,7 @@ def pr_closed_event(repo, payload):
         response = f"Thanks for merge this pull request, @{merged_by}! " \
                    f"@{author} ur issue is closed! :tada:"
         pr.create_comment(f"{response}")
-    delete_branch(repo, payload)
+        delete_branch(repo, payload)
     
 
 @app.route("/", methods=['POST'])
