@@ -31,6 +31,19 @@ def pr_opened_event(repo, payload):
         pr.create_comment(f"{response}")
         pr.add_to_labels("needs review")
 
+def pr_closed_event(repo, payload):
+    pr = repo.get_issue(number=payload['pull_request']['number'])
+    author = pr.user.login
+
+    merged_by = payload['pull_request']['merged_by']['login']
+
+    #is_first_pr = repo.get_issues(creator=author).totalCount
+    is_merged_pr = payload['pull_request']['merged']
+    if is_merged_pr == True:
+        response = f"Thanks for merge this pull request, @{merged_by}! " \
+                   f"@{author} ur issue is closed! :tada:"
+        pr.create_comment(f"{response}")
+
 @app.route("/", methods=['POST'])
 def bot():
     payload = request.json
@@ -51,6 +64,9 @@ def bot():
     # Check if the event is a GitHub pull request creation event
     if all(k in payload.keys() for k in ['action', 'pull_request']) and payload['action'] == 'opened':
         pr_opened_event(repo, payload)
+    # Check if PR are merged
+    elif all(k in payload.keys() for k in ['action', 'pull_request']) and payload['action'] == 'closed':
+        pr_closed_event(repo, payload)
 
     return "", 204
 
